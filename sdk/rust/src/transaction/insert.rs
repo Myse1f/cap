@@ -106,6 +106,26 @@ pub async fn insert(
     }
 }
 
+pub async fn insert_many<T: Into<IndefiniteEvent>>(
+    transactions: impl Iterator<Item = T>,
+) -> Result<TransactionId, InsertTransactionError> {
+    let events: Vec<IndefiniteEvent> = transactions.into_iter()
+        .map(|t| t.into())
+        .collect();
+
+    CapEnv::get()
+        .await
+        .root
+        .insert_many(&events)
+        .await
+        .map_err(|(code, details)| match details.as_str() {
+            "The method can only be invoked by one of the writers." => {
+                InsertTransactionError::CantWrite
+            }
+            _ => InsertTransactionError::Unexpected(code, details),
+        })
+}
+
 pub fn insert_sync(event: impl Into<IndefiniteEvent>) {
     PENDING.with(|p| {
         p.borrow_mut().push(event.into());

@@ -3,6 +3,7 @@ use thiserror::Error;
 
 mod insert;
 pub use insert::insert;
+pub use insert::insert_many;
 
 mod query;
 pub use query::get_transaction;
