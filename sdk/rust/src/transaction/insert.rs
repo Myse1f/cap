@@ -107,7 +107,7 @@ pub async fn insert(
 }
 
 pub async fn insert_many<T: Into<IndefiniteEvent>>(
-    transactions: impl Iterator<Item = T>,
+    transactions: Vec<T>,
 ) -> Result<TransactionId, InsertTransactionError> {
     let events: Vec<IndefiniteEvent> = transactions.into_iter()
         .map(|t| t.into())
